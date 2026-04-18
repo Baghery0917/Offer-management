@@ -8,7 +8,8 @@ import {
   Plus,
   Sparkles,
 } from "lucide-react";
-import { prisma } from "@/lib/prisma";
+// 暂时不使用 prisma，所以注释掉它
+// import { prisma } from "@/lib/prisma"; 
 import {
   ACTIVE_STAGES,
   STAGE_LABEL,
@@ -27,57 +28,40 @@ import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
+// --- 静态假数据定义 ---
+const MOCK_DEADLINES = [
+  { id: "1", company: "美团", position: "前端开发工程师", stage: "APPLIED", deadline: new Date(Date.now() + 86400000 * 2) },
+  { id: "2", company: "阿里巴巴", position: "Java后端实习", stage: "OA", deadline: new Date(Date.now() + 86400000 * 5) },
+];
+
+const MOCK_INTERVIEWS = [
+  { 
+    id: "i1", 
+    round: "技术一面", 
+    occurredAt: new Date(Date.now() + 86400000 * 1), 
+    application: { id: "1", company: "美团", position: "前端开发工程师" } 
+  },
+  { 
+    id: "i2", 
+    round: "技术二面", 
+    occurredAt: new Date(Date.now() + 86400000 * 3), 
+    application: { id: "3", company: "字节跳动", position: "UI设计" } 
+  },
+];
+
+const MOCK_RECENT = [
+  { id: "1", company: "美团", position: "前端开发工程师", stage: "INTERVIEWING", lastActionAt: new Date() },
+  { id: "4", company: "拼多多", position: "产品经理", stage: "OFFER", lastActionAt: new Date(Date.now() - 3600000 * 5) },
+];
+
 export default async function DashboardPage() {
-  const now = new Date();
-  const weekLater = new Date();
-  weekLater.setDate(now.getDate() + 7);
-
-  const [upcomingDeadlines, upcomingInterviews, total, activeCount, offerCount] =
-    await Promise.all([
-      prisma.application.findMany({
-        where: {
-          deadline: { gte: now, lte: weekLater },
-          stage: { notIn: ["OFFER", "REJECTED"] },
-        },
-        orderBy: { deadline: "asc" },
-        take: 5,
-        select: {
-          id: true,
-          company: true,
-          position: true,
-          stage: true,
-          deadline: true,
-        },
-      }),
-      prisma.interview.findMany({
-        where: { occurredAt: { gte: now, lte: weekLater } },
-        orderBy: { occurredAt: "asc" },
-        take: 5,
-        select: {
-          id: true,
-          round: true,
-          occurredAt: true,
-          application: { select: { id: true, company: true, position: true } },
-        },
-      }),
-      prisma.application.count(),
-      prisma.application.count({
-        where: { stage: { notIn: ["OFFER", "REJECTED"] } },
-      }),
-      prisma.application.count({ where: { stage: "OFFER" } }),
-    ]);
-
-  const recentApps = await prisma.application.findMany({
-    orderBy: { lastActionAt: "desc" },
-    take: 5,
-    select: {
-      id: true,
-      company: true,
-      position: true,
-      stage: true,
-      lastActionAt: true,
-    },
-  });
+  // 将变量指向假数据
+  const upcomingDeadlines = MOCK_DEADLINES;
+  const upcomingInterviews = MOCK_INTERVIEWS;
+  const recentApps = MOCK_RECENT;
+  const total = 12;
+  const activeCount = 8;
+  const offerCount = 1;
 
   return (
     <div className="p-6 space-y-6">
@@ -246,6 +230,8 @@ export default async function DashboardPage() {
     </div>
   );
 }
+
+// --- 辅助组件定义 ---
 
 function Panel({
   title,
