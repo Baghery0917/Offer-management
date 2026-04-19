@@ -155,7 +155,7 @@ export default async function ApplicationDetailPage({
       <section className="rounded-xl border bg-card p-5">
         <h2 className="text-sm font-medium mb-4">流转时间线</h2>
         <ol className="relative border-l border-border ml-2 space-y-4">
-          {app.events.map((e) => (
+          {app.events.map((e:any) => (
             <li key={e.id} className="pl-4 relative">
               <span
                 className={cn(
