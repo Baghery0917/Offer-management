@@ -10,6 +10,8 @@ import {
 } from "@/lib/schemas";
 import { isInterviewStage, type Stage } from "@/lib/stages";
 
+
+
 function revalidateAll() {
   revalidatePath("/");
   revalidatePath("/applications");
@@ -131,10 +133,11 @@ export async function updateStageWithInterview(input: unknown) {
   });
   if (!current) return { ok: false as const, error: "申请不存在" };
 
+  // ... existing code ...
   const needsStageChange = current.stage !== toStage;
   const now = new Date();
 
-  const created = await prisma.$transaction(async (tx) => {
+  const created = await prisma.$transaction(async (tx: any) => {
     if (needsStageChange) {
       await tx.application.update({
         where: { id },
@@ -169,6 +172,7 @@ export async function updateStageWithInterview(input: unknown) {
       select: { id: true },
     });
   });
+// ... existing code ...
 
   revalidateAll();
   revalidatePath(`/applications/${id}`);
